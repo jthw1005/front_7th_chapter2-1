@@ -1,5 +1,4 @@
-import { 상품목록_레이아웃_로딩완료 } from "./templates/상품목록_레이아웃_로딩완료.js";
-import { 상품목록_레이아웃_로딩 } from "./templates/상품목록_레이아웃_로딩.js";
+import ProductList from "./pages/ProductList.js";
 
 const enableMocking = () =>
   import("./mocks/browser.js").then(({ worker }) =>
@@ -10,8 +9,7 @@ const enableMocking = () =>
 
 function main() {
   document.body.innerHTML = `
-    ${상품목록_레이아웃_로딩완료}
-    ${상품목록_레이아웃_로딩}
+    ${ProductList()}
   `;
 }
 
