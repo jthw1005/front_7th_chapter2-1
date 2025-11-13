@@ -2,17 +2,12 @@ const ProductSearchFilter = (targetNode) => {
   const didMount = () => {};
 
   const render = () => {
-    targetNode.insertAdjacentHTML(
-      "afterbegin",
-      /* HTML */ `
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-          <!-- 검색창 -->
-          ${SearchInput()}
-          <!-- 필터 옵션 -->
-          ${FilterOptions()}
-        </div>
-      `,
-    );
+    targetNode.innerHTML = /* HTML */ `
+      <!-- 검색창 -->
+      ${SearchInput()}
+      <!-- 필터 옵션 -->
+      ${FilterOptions()}
+    `;
   };
 
   const onMount = (targetNode) => {

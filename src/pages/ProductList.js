@@ -5,21 +5,24 @@ import ProductSearchFilter from "../components/ProductSearchFilter.js";
 
 const ProductList = (targetNode) => {
   const didMount = () => {
-    // const $headerNode = document.querySelector("[data-component='product-list-layout']");
-    const $mainNode = document.querySelector("[data-component='product-list-main']");
-    // const $footerNode = document.querySelector("[data-component='product-list-footer']");
+    const $SearchFilterNode = document.querySelector("[data-component='search-filter']");
+    const $ProductsNode = document.querySelector("[data-component='products']");
 
-    // Header($headerNode, { title: "쇼핑몰" });
-    ProductSearchFilter($mainNode);
-    Products($mainNode);
-    // Footer($footerNode);
+    ProductSearchFilter($SearchFilterNode);
+    Products($ProductsNode);
   };
 
   const render = () => {
     targetNode.innerHTML = /* HTML */ `
       <div class="bg-gray-50" data-component="product-list-layout">
         ${Header({ title: "쇼핑몰" })}
-        <main class="max-w-md mx-auto px-4 py-4" data-component="product-list-main"></main>
+        <main class="max-w-md mx-auto px-4 py-4">
+          <div
+            class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4"
+            data-component="search-filter"
+          ></div>
+          <div class="mb-6" data-component="products"></div>
+        </main>
         ${Footer()}
       </div>
     `;

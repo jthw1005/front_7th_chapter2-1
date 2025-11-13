@@ -3,8 +3,15 @@ import router from "../Router.js";
 import { store } from "../store/Store.js";
 
 const Products = (targetNode) => {
+  const registerStore = () => {
+    store.subscribe("isProductListLoading", render);
+    store.setState("isProductListLoading", true);
+    store.subscribe("productsData", render);
+    store.setState("productsData", null);
+  };
+
   const render = () => {
-    const isLoading = store.getState("isLoading");
+    const isProductListLoading = store.getState("isProductListLoading");
     const data = store.getState("productsData");
 
     const ProductCard = (product) => {
@@ -42,12 +49,11 @@ const Products = (targetNode) => {
       `;
     };
 
-    targetNode.insertAdjacentHTML(
-      "beforeend",
-      /* HTML */ `<div class="mb-6">
-        ${isLoading
-          ? Skeleton()
-          : /* HTML */ ` <div>
+    targetNode.innerHTML = /* HTML */ `
+      ${isProductListLoading
+        ? Skeleton()
+        : /* HTML */ `
+            <div>
               <!-- 상품 개수 정보 -->
               <div class="mb-4 text-sm text-gray-600">
                 총 <span class="font-medium text-gray-900">${data?.pagination?.total ?? 0}개</span>의 상품
@@ -57,9 +63,9 @@ const Products = (targetNode) => {
                 ${data?.products?.map((product) => ProductCard(product)).join("") ?? ""}
               </div>
               <div class="text-center py-4 text-sm text-gray-500">모든 상품을 확인했습니다</div>
-            </div>`}
-      </div>`,
-    );
+            </div>
+          `}
+    `;
   };
 
   const addEventListeners = () => {
@@ -83,7 +89,7 @@ const Products = (targetNode) => {
     } catch (error) {
       console.error(error);
     } finally {
-      store.setState("isLoading", false);
+      store.setState("isProductListLoading", false);
     }
   };
 
@@ -93,6 +99,7 @@ const Products = (targetNode) => {
   };
 
   const onMount = () => {
+    registerStore();
     render();
     didMount();
   };
