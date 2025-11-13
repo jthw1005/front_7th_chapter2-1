@@ -4,7 +4,8 @@ class Router {
   }
 
   _handleRoute() {
-    const path = window.location.pathname;
+    const baseUrl = import.meta.env.BASE_URL;
+    const path = window.location.pathname.replace(baseUrl, "/");
 
     const getRoute = (path) => {
       const matchedRoute = this.routes.find((route) => {
