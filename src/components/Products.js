@@ -90,8 +90,6 @@ const Products = (targetNode) => {
       observerInstance.disconnect();
     }
 
-    addEventListeners();
-
     if (hasNextPage) {
       setupInfiniteScroll();
     }
