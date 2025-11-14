@@ -176,7 +176,7 @@ const Products = (targetNode) => {
     didMount();
   };
 
-  onMount(targetNode);
+  onMount();
 };
 
 export default Products;
