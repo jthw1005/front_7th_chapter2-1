@@ -1,54 +1,42 @@
+import { store } from "../store/Store";
+
 const ProductSearchFilter = (targetNode) => {
-  const didMount = () => {};
+  const registerStore = () => {
+    store.subscribe("isCategoryLoading", onUpdate);
+    store.setState("isCategoryLoading", true);
+    store.subscribe("categoryListData", onUpdate);
+    store.setState("categoryListData", null);
+  };
 
   const render = () => {
+    const isCategoryLoading = store.getState("isCategoryLoading");
+    // const categoryListData = store.getState("categoryListData");
+
     targetNode.innerHTML = /* HTML */ `
       <!-- 검색창 -->
-      ${SearchInput()}
+      <div class="mb-4">
+        <div class="relative">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="상품명을 검색해보세요..."
+            value=""
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
+                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              ></path>
+            </svg>
+          </div>
+        </div>
+      </div>
       <!-- 필터 옵션 -->
-      ${FilterOptions()}
-    `;
-  };
-
-  const onMount = (targetNode) => {
-    render(targetNode);
-    didMount();
-  };
-
-  onMount(targetNode);
-};
-
-export default ProductSearchFilter;
-
-const FilterOptions = () => {
-  const isLoading = false;
-
-  const loadingUI =
-    /* HTML */
-    `<div class="text-sm text-gray-500 italic">카테고리 로딩 중...</div>`;
-
-  const categories =
-    /* HTML */
-    `
-      <button
-        data-category1="생활/건강"
-        class="category1-filter-btn text-left px-3 py-2 text-sm rounded-md border transition-colors
-      bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-      >
-        생활/건강
-      </button>
-      <button
-        data-category1="디지털/가전"
-        class="category1-filter-btn text-left px-3 py-2 text-sm rounded-md border transition-colors
-      bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-      >
-        디지털/가전
-      </button>
-    `;
-
-  return (
-    /* HTML */
-    `
       <div class="space-y-3">
         <!-- 카테고리 필터 -->
         <div class="space-y-2">
@@ -57,7 +45,24 @@ const FilterOptions = () => {
             <button data-breadcrumb="reset" class="text-xs hover:text-blue-800 hover:underline">전체</button>
           </div>
           <!-- 1depth 카테고리 -->
-          <div class="flex flex-wrap gap-2">${isLoading ? loadingUI : categories}</div>
+          <div class="flex flex-wrap gap-2">
+            ${isCategoryLoading
+              ? /* HTML */ `<div class="text-sm text-gray-500 italic">카테고리 로딩 중...</div>`
+              : /* HTML */ `<button
+                    data-category1="생활/건강"
+                    class="category1-filter-btn text-left px-3 py-2 text-sm rounded-md border transition-colors
+      bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    생활/건강
+                  </button>
+                  <button
+                    data-category1="디지털/가전"
+                    class="category1-filter-btn text-left px-3 py-2 text-sm rounded-md border transition-colors
+      bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    디지털/가전
+                  </button>`}
+          </div>
           <!-- 2depth 카테고리 -->
         </div>
         <!-- 기존 필터들 -->
@@ -81,7 +86,7 @@ const FilterOptions = () => {
             <select
               id="sort-select"
               class="text-sm border border-gray-300 rounded px-2 py-1
-    focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+  focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="price_asc" selected="">가격 낮은순</option>
               <option value="price_desc">가격 높은순</option>
@@ -91,33 +96,30 @@ const FilterOptions = () => {
           </div>
         </div>
       </div>
-    `
-  );
+    `;
+  };
+
+  const onUpdate = () => {
+    render();
+    addEventListeners();
+  };
+
+  const addEventListeners = () => {};
+
+  const fetchCategories = async () => {};
+
+  const didMount = () => {
+    addEventListeners();
+    fetchCategories();
+  };
+
+  const onMount = () => {
+    registerStore();
+    render();
+    didMount();
+  };
+
+  onMount();
 };
 
-const SearchInput = () =>
-  /* HTML */
-  `
-    <div class="mb-4">
-      <div class="relative">
-        <input
-          type="text"
-          id="search-input"
-          placeholder="상품명을 검색해보세요..."
-          value=""
-          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
-                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            ></path>
-          </svg>
-        </div>
-      </div>
-    </div>
-  `;
+export default ProductSearchFilter;
