@@ -14,6 +14,10 @@ const Products = (targetNode) => {
     store.setState("isProductListLoading", true);
     store.subscribe("productsData", onUpdate);
     store.setState("productsData", null);
+
+    // 카테고리 변경 시 상품 목록 다시 조회
+    store.subscribe("selectedCategory1", onCategoryChange);
+    store.subscribe("selectedCategory2", onCategoryChange);
   };
 
   const render = () => {
@@ -95,6 +99,13 @@ const Products = (targetNode) => {
     }
   };
 
+  const onCategoryChange = () => {
+    // 카테고리 변경 시 첫 페이지부터 다시 조회
+    store.setState("isProductListLoading", true);
+    currentPage = 1;
+    fetchProducts(1);
+  };
+
   const addEventListeners = () => {
     const $productsGrid = document.getElementById("products-grid");
     if (!$productsGrid) return;
@@ -111,7 +122,14 @@ const Products = (targetNode) => {
 
   const fetchProducts = async (page = 1) => {
     try {
-      const data = await getProducts({ page });
+      const category1 = store.getState("selectedCategory1");
+      const category2 = store.getState("selectedCategory2");
+
+      const data = await getProducts({
+        page,
+        category1: category1 || "",
+        category2: category2 || "",
+      });
 
       if (page === 1) {
         // 첫 페이지는 교체
