@@ -1,3 +1,4 @@
+import { getCategories } from "../api/productApi";
 import { store } from "../store/Store";
 
 const ProductSearchFilter = (targetNode) => {
@@ -6,11 +7,17 @@ const ProductSearchFilter = (targetNode) => {
     store.setState("isCategoryLoading", true);
     store.subscribe("categoryListData", onUpdate);
     store.setState("categoryListData", null);
+    store.subscribe("selectedCategory1", onUpdate);
+    store.setState("selectedCategory1", "");
+    store.subscribe("selectedCategory2", onUpdate);
+    store.setState("selectedCategory2", "");
   };
 
   const render = () => {
     const isCategoryLoading = store.getState("isCategoryLoading");
-    // const categoryListData = store.getState("categoryListData");
+    const categoryListData = store.getState("categoryListData");
+    const selectedCategory1 = store.getState("selectedCategory1");
+    const selectedCategory2 = store.getState("selectedCategory2");
 
     targetNode.innerHTML = /* HTML */ `
       <!-- 검색창 -->
@@ -43,27 +50,67 @@ const ProductSearchFilter = (targetNode) => {
           <div class="flex items-center gap-2">
             <label class="text-sm text-gray-600">카테고리:</label>
             <button data-breadcrumb="reset" class="text-xs hover:text-blue-800 hover:underline">전체</button>
-          </div>
-          <!-- 1depth 카테고리 -->
-          <div class="flex flex-wrap gap-2">
-            ${isCategoryLoading
-              ? /* HTML */ `<div class="text-sm text-gray-500 italic">카테고리 로딩 중...</div>`
-              : /* HTML */ `<button
-                    data-category1="생활/건강"
-                    class="category1-filter-btn text-left px-3 py-2 text-sm rounded-md border transition-colors
-      bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                  >
-                    생활/건강
-                  </button>
+            ${selectedCategory1
+              ? /* HTML */ `<span class="text-xs text-gray-500">&gt;</span>
                   <button
-                    data-category1="디지털/가전"
-                    class="category1-filter-btn text-left px-3 py-2 text-sm rounded-md border transition-colors
-      bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                    data-breadcrumb="category1"
+                    data-category1="${selectedCategory1}"
+                    class="text-xs hover:text-blue-800 hover:underline"
                   >
-                    디지털/가전
-                  </button>`}
+                    ${selectedCategory1}
+                  </button>`
+              : ""}
+            ${selectedCategory2
+              ? /* HTML */ `<span class="text-xs text-gray-500">&gt;</span>
+                  <span class="text-xs text-gray-600 cursor-default">${selectedCategory2}</span>`
+              : ""}
           </div>
-          <!-- 2depth 카테고리 -->
+          ${isCategoryLoading
+            ? /* HTML */ `<div class="text-sm text-gray-500 italic">카테고리 로딩 중...</div>`
+            : !selectedCategory1
+              ? /* HTML */ `
+                  <!-- 1depth 카테고리 -->
+                  <div class="flex flex-wrap gap-2">
+                    ${categoryListData
+                      ? Object.keys(categoryListData)
+                          .map(
+                            (category1) => /* HTML */ `
+                              <button
+                                data-category1="${category1}"
+                                class="category1-filter-btn text-left px-3 py-2 text-sm rounded-md border transition-colors
+                        bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                              >
+                                ${category1}
+                              </button>
+                            `,
+                          )
+                          .join("")
+                      : ""}
+                  </div>
+                `
+              : /* HTML */ `
+                  <!-- 2depth 카테고리 -->
+                  <div class="flex flex-wrap gap-2">
+                    ${categoryListData?.[selectedCategory1]
+                      ? Object.keys(categoryListData[selectedCategory1])
+                          .map(
+                            (category2) => /* HTML */ `
+                              <button
+                                data-category1="${selectedCategory1}"
+                                data-category2="${category2}"
+                                class="category2-filter-btn text-left px-3 py-2 text-sm rounded-md border transition-colors
+                        ${selectedCategory2 === category2
+                                  ? "bg-blue-100 border-blue-300 text-blue-800"
+                                  : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"}"
+                              >
+                                ${category2}
+                              </button>
+                            `,
+                          )
+                          .join("")
+                      : ""}
+                  </div>
+                `}
         </div>
         <!-- 기존 필터들 -->
         <div class="flex gap-2 items-center justify-between">
@@ -104,9 +151,63 @@ const ProductSearchFilter = (targetNode) => {
     addEventListeners();
   };
 
-  const addEventListeners = () => {};
+  const addEventListeners = () => {
+    // 카테고리1 버튼 클릭
+    const category1Buttons = targetNode.querySelectorAll(".category1-filter-btn");
+    category1Buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const category1 = button.dataset.category1;
+        // 카테고리1 선택 시 카테고리2 초기화
+        store.setState("selectedCategory1", category1);
+        store.setState("selectedCategory2", "");
+      });
+    });
 
-  const fetchCategories = async () => {};
+    // 카테고리2 버튼 클릭
+    const category2Buttons = targetNode.querySelectorAll(".category2-filter-btn");
+    category2Buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const category2 = button.dataset.category2;
+        const currentCategory2 = store.getState("selectedCategory2");
+
+        if (currentCategory2 === category2) {
+          // 같은 카테고리를 다시 클릭하면 선택 해제
+          store.setState("selectedCategory2", "");
+        } else {
+          // 새로운 카테고리 선택
+          store.setState("selectedCategory2", category2);
+        }
+      });
+    });
+
+    // 전체 버튼 클릭 (카테고리 초기화)
+    const resetButton = targetNode.querySelector('[data-breadcrumb="reset"]');
+    if (resetButton) {
+      resetButton.addEventListener("click", () => {
+        store.setState("selectedCategory1", "");
+        store.setState("selectedCategory2", "");
+      });
+    }
+
+    // breadcrumb category1 버튼 클릭 (카테고리2만 초기화)
+    const breadcrumbCategory1Button = targetNode.querySelector('[data-breadcrumb="category1"]');
+    if (breadcrumbCategory1Button) {
+      breadcrumbCategory1Button.addEventListener("click", () => {
+        store.setState("selectedCategory2", "");
+      });
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const data = await getCategories();
+      store.setState("categoryListData", data);
+    } catch (error) {
+      console.error("카테고리 조회 실패:", error);
+    } finally {
+      store.setState("isCategoryLoading", false);
+    }
+  };
 
   const didMount = () => {
     addEventListeners();
