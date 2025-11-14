@@ -66,7 +66,7 @@ const ProductDetail = (targetNode) => {
                     </div>
                     <!-- 상품 정보 -->
                     <div>
-                      <p class="text-sm text-gray-600 mb-1"></p>
+                      <p class="text-sm text-gray-600 mb-1">${data?.brand}</p>
                       <h1 class="text-xl font-bold text-gray-900 mb-3">${data?.title}</h1>
                       <!-- 평점 및 리뷰 -->
                       <div class="flex items-center mb-3">
@@ -288,6 +288,49 @@ const ProductDetail = (targetNode) => {
         router.push(`${import.meta.env.BASE_URL}product/${productId}`);
       });
     });
+
+    // 수량 증가/감소 버튼
+    const quantityInput = targetNode.querySelector("#quantity-input");
+    const decreaseBtn = targetNode.querySelector("#quantity-decrease");
+    const increaseBtn = targetNode.querySelector("#quantity-increase");
+
+    if (quantityInput && decreaseBtn && increaseBtn) {
+      const productData = store.getState("productData");
+      const maxStock = productData?.stock || 100;
+
+      // 수량 감소 버튼
+      decreaseBtn.addEventListener("click", () => {
+        const currentValue = parseInt(quantityInput.value) || 1;
+        if (currentValue > 1) {
+          quantityInput.value = currentValue - 1;
+        }
+      });
+
+      // 수량 증가 버튼
+      increaseBtn.addEventListener("click", () => {
+        const currentValue = parseInt(quantityInput.value) || 1;
+        if (currentValue < maxStock) {
+          quantityInput.value = currentValue + 1;
+        }
+      });
+
+      // 수량 직접 입력 시 유효성 검사
+      quantityInput.addEventListener("input", (e) => {
+        let value = parseInt(e.target.value);
+        if (isNaN(value) || value < 1) {
+          e.target.value = 1;
+        } else if (value > maxStock) {
+          e.target.value = maxStock;
+        }
+      });
+
+      // 포커스 아웃 시 빈 값 방지
+      quantityInput.addEventListener("blur", (e) => {
+        if (e.target.value === "" || isNaN(parseInt(e.target.value))) {
+          e.target.value = 1;
+        }
+      });
+    }
   };
 
   const didMount = () => {
