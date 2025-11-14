@@ -481,7 +481,7 @@ const CartModal = () => {
     const checkoutBtn = modalContainer.querySelector("#cart-modal-checkout-btn");
     if (checkoutBtn) {
       checkoutBtn.addEventListener("click", () => {
-        alert("구매하기 기능은 준비 중입니다.");
+        showToast("구매 기능은 추후 구현 예정입니다.", "info");
       });
     }
 
@@ -505,16 +505,16 @@ const CartModal = () => {
       existingModal.remove();
     }
 
-    // 모달 오버레이 생성
+    // 모달 컨테이너 생성
     modalContainer = document.createElement("div");
-    modalContainer.id = "cart-modal-overlay";
-    modalContainer.className =
-      "fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center";
+    modalContainer.className = "fixed inset-0 z-50 overflow-y-auto cart-modal";
 
     const cart = getCartData();
     const itemCount = cart.items.length;
 
     modalContainer.innerHTML = /* HTML */ `
+      <!-- 배경 오버레이 -->
+      <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity cart-modal-overlay"></div>
       <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4">
         <div
           class="relative bg-white rounded-t-lg sm:rounded-lg shadow-xl w-full max-w-md sm:max-w-lg max-h-[90vh] overflow-hidden"
