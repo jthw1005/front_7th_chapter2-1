@@ -264,7 +264,7 @@ const Products = (targetNode) => {
           localStorage.setItem("shopping_cart", JSON.stringify(cart));
 
           // 사용자에게 토스트 메시지 표시
-          showToast("장바구니에 추가되었습니다", "success");
+          showToast("장바구니에 추가되었습니다.", "success");
 
           // Header 업데이트
           window.dispatchEvent(new Event("storage"));

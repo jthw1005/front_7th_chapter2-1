@@ -494,7 +494,7 @@ const ProductDetail = (targetNode) => {
           }
 
           // 사용자에게 토스트 메시지 표시
-          showToast("장바구니에 추가되었습니다", "success");
+          showToast("장바구니에 추가되었습니다.", "success");
 
           // Header 업데이트를 위해 페이지 새로고침 (또는 이벤트 발생)
           window.dispatchEvent(new Event("storage"));

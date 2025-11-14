@@ -1,3 +1,8 @@
+import CartModal from "./CartModal.js";
+
+// CartModal 인스턴스
+let cartModalInstance = null;
+
 // localStorage에서 장바구니 데이터 가져오기
 const getCartCount = () => {
   try {
@@ -64,6 +69,22 @@ export const Header = () => {
     window.addEventListener("storage", updateCartCount);
     window.__cartEventListenerAdded = true;
   }
+
+  // CartModal 인스턴스 생성 (한 번만)
+  if (!cartModalInstance) {
+    cartModalInstance = CartModal();
+  }
+
+  // 장바구니 아이콘 클릭 이벤트 등록
+  setTimeout(() => {
+    const cartIconBtn = document.getElementById("cart-icon-btn");
+    if (cartIconBtn && !cartIconBtn.__cartClickListenerAdded) {
+      cartIconBtn.addEventListener("click", () => {
+        cartModalInstance.open();
+      });
+      cartIconBtn.__cartClickListenerAdded = true;
+    }
+  }, 0);
 
   return (
     /* HTML */
