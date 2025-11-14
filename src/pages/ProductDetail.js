@@ -2,6 +2,7 @@ import { getProduct, getProducts } from "../api/productApi";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { store } from "../store/Store";
+import router from "../Router.js";
 
 const ProductDetail = (targetNode) => {
   const productId = window.location.pathname.split("/").at(-1);
@@ -34,11 +35,22 @@ const ProductDetail = (targetNode) => {
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
-                    <button class="breadcrumb-link" data-category1=${data?.category1}>${data?.category1}</button>
+                    <button
+                      class="breadcrumb-link hover:text-blue-600 transition-colors"
+                      data-category1="${data?.category1}"
+                    >
+                      ${data?.category1}
+                    </button>
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
-                    <button class="breadcrumb-link" data-category2=${data?.category2}>${data?.category2}</button>
+                    <button
+                      class="breadcrumb-link hover:text-blue-600 transition-colors"
+                      data-category1="${data?.category1}"
+                      data-category2="${data?.category2}"
+                    >
+                      ${data?.category2}
+                    </button>
                   </div>
                 </nav>
                 <!-- 상품 상세 정보 -->
@@ -227,7 +239,56 @@ const ProductDetail = (targetNode) => {
     }
   };
 
-  const addEventListeners = () => {};
+  const addEventListeners = () => {
+    // 홈 링크 클릭
+    const homeLink = targetNode.querySelector('a[data-link=""]');
+    if (homeLink) {
+      homeLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        router.push(`${import.meta.env.BASE_URL}`);
+      });
+    }
+
+    // 카테고리1 breadcrumb 클릭
+    const category1Buttons = targetNode.querySelectorAll(".breadcrumb-link[data-category1]");
+    category1Buttons.forEach((button) => {
+      button.addEventListener("click", (e) => {
+        e.preventDefault();
+        const category1 = button.dataset.category1;
+        router.push(`${import.meta.env.BASE_URL}?category1=${encodeURIComponent(category1)}`);
+      });
+    });
+
+    // 카테고리2 breadcrumb 클릭
+    const category2Buttons = targetNode.querySelectorAll(".breadcrumb-link[data-category2]");
+    category2Buttons.forEach((button) => {
+      button.addEventListener("click", (e) => {
+        e.preventDefault();
+        const category1 = button.dataset.category1;
+        const category2 = button.dataset.category2;
+        router.push(
+          `${import.meta.env.BASE_URL}?category1=${encodeURIComponent(category1)}&category2=${encodeURIComponent(category2)}`,
+        );
+      });
+    });
+
+    // 상품 목록으로 돌아가기 버튼
+    const goToListButton = targetNode.querySelector(".go-to-product-list");
+    if (goToListButton) {
+      goToListButton.addEventListener("click", () => {
+        router.push(`${import.meta.env.BASE_URL}`);
+      });
+    }
+
+    // 관련 상품 클릭
+    const relatedProductCards = targetNode.querySelectorAll(".related-product-card");
+    relatedProductCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const productId = card.dataset.productId;
+        router.push(`${import.meta.env.BASE_URL}product/${productId}`);
+      });
+    });
+  };
 
   const didMount = () => {
     addEventListeners();
