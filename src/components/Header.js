@@ -1,19 +1,32 @@
-export const Header = () => {
-  // localStorage에서 장바구니 데이터 가져오기
-  const getCartCount = () => {
-    try {
-      const cartData = localStorage.getItem("shopping_cart");
-      if (!cartData) return 0;
+// localStorage에서 장바구니 데이터 가져오기
+const getCartCount = () => {
+  try {
+    const cartData = localStorage.getItem("shopping_cart");
+    if (!cartData) return 0;
 
-      const cart = JSON.parse(cartData);
-      // items 배열의 각 상품의 quantity를 합산
-      return cart.items.length;
-    } catch (error) {
-      console.error("장바구니 데이터 로드 실패:", error);
-      return 0;
+    const cart = JSON.parse(cartData);
+    return cart.items.length;
+  } catch (error) {
+    console.error("장바구니 데이터 로드 실패:", error);
+    return 0;
+  }
+};
+
+// 장바구니 카운트를 업데이트하는 함수
+const updateCartCount = () => {
+  const cartCountElement = document.getElementById("cart-count-badge");
+  if (cartCountElement) {
+    const newCount = getCartCount();
+    if (newCount > 0) {
+      cartCountElement.textContent = newCount;
+      cartCountElement.style.display = "flex";
+    } else {
+      cartCountElement.style.display = "none";
     }
-  };
+  }
+};
 
+export const Header = () => {
   const cartCount = getCartCount();
 
   const pathname = window.location.pathname;
@@ -46,6 +59,12 @@ export const Header = () => {
     );
   };
 
+  // storage 이벤트 리스너 등록 (한 번만)
+  if (!window.__cartEventListenerAdded) {
+    window.addEventListener("storage", updateCartCount);
+    window.__cartEventListenerAdded = true;
+  }
+
   return (
     /* HTML */
     `
@@ -64,9 +83,12 @@ export const Header = () => {
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4m2.6 8L6 2H3m4 11v6a1 1 0 001 1h1a1 1 0 001-1v-6M13 13v6a1 1 0 001 1h1a1 1 0 001-1v-6"
                   ></path>
                 </svg>
-                ${cartCount > 0
-                  ? `<span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">${cartCount}</span>`
-                  : ""}
+                <span
+                  id="cart-count-badge"
+                  class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                  style="display: ${cartCount > 0 ? "flex" : "none"}"
+                  >${cartCount}</span
+                >
               </button>
             </div>
           </div>

@@ -488,6 +488,11 @@ const ProductDetail = (targetNode) => {
           // localStorage에 저장
           localStorage.setItem("shopping_cart", JSON.stringify(cart));
 
+          // 수량 입력 필드를 1로 초기화
+          if (quantityInput) {
+            quantityInput.value = 1;
+          }
+
           // 사용자에게 토스트 메시지 표시
           showToast("장바구니에 추가되었습니다", "success");
 
