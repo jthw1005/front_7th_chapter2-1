@@ -1,6 +1,25 @@
 import { getCategories } from "../api/productApi";
 import { store } from "../store/Store";
 
+// URL 쿼리 스트링 업데이트 함수
+const updateURLParams = (params) => {
+  const url = new URL(window.location);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    } else {
+      url.searchParams.delete(key);
+    }
+  });
+  window.history.replaceState({}, "", url);
+};
+
+// URL 쿼리 스트링에서 값 가져오기 함수
+const getURLParam = (key) => {
+  const url = new URL(window.location);
+  return url.searchParams.get(key) || "";
+};
+
 const ProductSearchFilter = (targetNode) => {
   const registerStore = () => {
     store.subscribe("isCategoryLoading", onUpdate);
@@ -8,9 +27,13 @@ const ProductSearchFilter = (targetNode) => {
     store.subscribe("categoryListData", onUpdate);
     store.setState("categoryListData", null);
     store.subscribe("selectedCategory1", onUpdate);
-    store.setState("selectedCategory1", "");
     store.subscribe("selectedCategory2", onUpdate);
-    store.setState("selectedCategory2", "");
+
+    // URL 쿼리 스트링에서 카테고리 초기값 설정
+    const category1FromURL = getURLParam("category1");
+    const category2FromURL = getURLParam("category2");
+    store.setState("selectedCategory1", category1FromURL);
+    store.setState("selectedCategory2", category2FromURL);
   };
 
   const render = () => {
@@ -160,6 +183,8 @@ const ProductSearchFilter = (targetNode) => {
         // 카테고리1 선택 시 카테고리2 초기화
         store.setState("selectedCategory1", category1);
         store.setState("selectedCategory2", "");
+        // URL 업데이트
+        updateURLParams({ category1, category2: "" });
       });
     });
 
@@ -169,13 +194,16 @@ const ProductSearchFilter = (targetNode) => {
       button.addEventListener("click", () => {
         const category2 = button.dataset.category2;
         const currentCategory2 = store.getState("selectedCategory2");
+        const category1 = store.getState("selectedCategory1");
 
         if (currentCategory2 === category2) {
           // 같은 카테고리를 다시 클릭하면 선택 해제
           store.setState("selectedCategory2", "");
+          updateURLParams({ category1, category2: "" });
         } else {
           // 새로운 카테고리 선택
           store.setState("selectedCategory2", category2);
+          updateURLParams({ category1, category2 });
         }
       });
     });
@@ -186,6 +214,8 @@ const ProductSearchFilter = (targetNode) => {
       resetButton.addEventListener("click", () => {
         store.setState("selectedCategory1", "");
         store.setState("selectedCategory2", "");
+        // URL 업데이트
+        updateURLParams({ category1: "", category2: "" });
       });
     }
 
@@ -193,7 +223,10 @@ const ProductSearchFilter = (targetNode) => {
     const breadcrumbCategory1Button = targetNode.querySelector('[data-breadcrumb="category1"]');
     if (breadcrumbCategory1Button) {
       breadcrumbCategory1Button.addEventListener("click", () => {
+        const category1 = store.getState("selectedCategory1");
         store.setState("selectedCategory2", "");
+        // URL 업데이트
+        updateURLParams({ category1, category2: "" });
       });
     }
   };
